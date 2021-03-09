@@ -1,10 +1,11 @@
 #!/usr/bin/python
-from sys import stdin, argv
+from sys import argv, stdin, stderr
 from string import whitespace
 
 # These next 2 lines of code are only for ANSI escape support on Windows cmd prompt/powershell
 # If you do not use cmd/ps, you can comment them out or remove them
 from os import system
+
 system("")
 
 color_info = {"amount": 299, "max_rgb_value": 255}
@@ -15,8 +16,15 @@ if len(argv) == 1:
     argv.append("-")
 
 for argument in argv[1:]:
-    read_result = stdin.read() if argument == "-" else open(argument, "r").read()
-    color_info["changes"] = len(list(filter(lambda c: not c in whitespace, read_result))) - 1
+    try:
+        read_result = stdin.read() if argument == "-" else open(argument, "r").read()
+    except Exception as e:
+        print(e, file=stderr)
+        continue
+
+    color_info["changes"] = (
+        len(list(filter(lambda c: not c in whitespace, read_result))) - 1
+    )
     color_info["step"] = (
         0
         if color_info["changes"] == 0
