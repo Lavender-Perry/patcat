@@ -1,4 +1,5 @@
 #!/usr/bin/python
+from enum import IntEnum
 from sys import argv, stdin, stderr
 from string import whitespace
 
@@ -8,47 +9,58 @@ from os import system
 
 system("")
 
-color_info = {"amount": 299, "max_rgb_value": 255}
-color_info["per_stage"] = (color_info["amount"] + 1) // 3
-color_info["min_rgb_value"] = color_info["max_rgb_value"] - color_info["per_stage"]
+# If the program is using too much memory, try decreasing this value
+bytes_to_read = 1000000
+
+
+class ColorInfo(IntEnum):
+    AMOUNT = 299
+    MAX_RGB_VALUE = 255
+    PER_STAGE = (AMOUNT + 1) // 3
+    MIN_RGB_VALUE = MAX_RGB_VALUE - PER_STAGE
+
 
 if len(argv) == 1:
     argv.append("-")
 
-for argument in argv[1:]:
+for arg in argv[1:]:
     try:
-        read_result = stdin.read() if argument == "-" else open(argument, "r").read()
+        file = stdin if arg == "-" else open(arg, "r")
+        if file.seekable():
+            file_length = file.seek(0, 2)
+            if file_length > bytes_to_read:
+                file.seek(file_length - bytes_to_read)
+            else:
+                file.seek(0)
+            read_result = file.read()
+        else:
+            read_result = file.read(bytes_to_read)
     except Exception as e:
-        print(e, file=stderr)
+        print("Error reading %s: %s" % (file.name, e), file=stderr)
         continue
 
-    color_info["changes"] = (
-        len(list(filter(lambda c: not c in whitespace, read_result))) - 1
-    )
-    color_info["step"] = (
-        0
-        if color_info["changes"] == 0
-        else color_info["amount"] / color_info["changes"]
-    )
-    color_info["index"] = 0
+    changes = len(list(filter(lambda c: not c in whitespace, read_result)))
 
-    for character in read_result:
-        if character in whitespace:
-            print(character, end="")
+    step = 0 if changes == 0 else ColorInfo.AMOUNT / changes
+    index = 0
+
+    for char in read_result:
+        if char in whitespace:
+            print(char, end="")
             continue
 
-        color_value = round(color_info["index"])
-        value_modifier = color_value % color_info["per_stage"]
+        color_value = round(index)
+        value_modifier = color_value % ColorInfo.PER_STAGE
         rgb_values = [
-            color_info["min_rgb_value"] + value_modifier,
-            color_info["max_rgb_value"] - value_modifier,
-            color_info["min_rgb_value"],
+            ColorInfo.MIN_RGB_VALUE + value_modifier,
+            ColorInfo.MAX_RGB_VALUE - value_modifier,
+            ColorInfo.MIN_RGB_VALUE,
         ]
         [red, green, blue] = [
             [rgb_values[1], rgb_values[0], rgb_values[2]],
             rgb_values[::-1],
             [rgb_values[0], rgb_values[2], rgb_values[1]],
-        ][color_value // color_info["per_stage"]]
+        ][color_value // ColorInfo.PER_STAGE]
 
-        print("\x1b[38;2;%d;%d;%dm%s" % (red, green, blue, character), end="")
-        color_info["index"] += color_info["step"]
+        print("\x1b[38;2;%d;%d;%dm%s" % (red, green, blue, char), end="")
+        index += step
