@@ -26,20 +26,12 @@ if len(argv) == 1:
 for arg in argv[1:]:
     try:
         file = stdin if arg == "-" else open(arg, "r")
-        if file.seekable():
-            file_length = file.seek(0, 2)
-            if file_length > bytes_to_read:
-                file.seek(file_length - bytes_to_read)
-            else:
-                file.seek(0)
-            read_result = file.read()
-        else:
-            read_result = file.read(bytes_to_read)
+        read_result = file.read(bytes_to_read)
     except Exception as e:
         print("Error reading %s: %s" % (file.name, e), file=stderr)
         continue
 
-    changes = len(list(filter(lambda c: not c in whitespace, read_result)))
+    changes = len(list(filter(lambda c: not c in whitespace, read_result))) - 1
 
     step = 0 if changes == 0 else ColorInfo.AMOUNT / changes
     index = 0
