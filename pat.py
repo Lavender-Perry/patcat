@@ -28,7 +28,10 @@ for arg in argv[1:]:
         file = stdin if arg == "-" else open(arg, "r")
         read_result = file.read(bytes_to_read)
     except Exception as e:
-        print("Error reading %s: %s" % (file.name, e), file=stderr)
+        print(
+            f"Error {f'reading {file.name}' if 'file' in globals() else 'opening file'}: {e}",
+            file=stderr,
+        )
         continue
 
     changes = len(list(filter(lambda c: not c in whitespace, read_result))) - 1
