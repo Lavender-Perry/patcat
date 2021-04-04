@@ -29,9 +29,9 @@ for arg in argv[1:]:
         read_result = file.read(bytes_to_read)
     except Exception as e:
         print(
-            f"Error \
-            {f'reading {file.name}' if 'file' in globals() else 'opening file'}\
-            : {e}",
+            "Error "
+            + (f"reading {file.name}" if "file" in globals() else "opening file")
+            + f": {e}",
             file=stderr,
         )
         continue
@@ -61,3 +61,5 @@ for arg in argv[1:]:
 
         print("\x1b[38;2;%d;%d;%dm%s" % (red, green, blue, char), end="")
         index += step
+
+    print("\x1b[0m")
