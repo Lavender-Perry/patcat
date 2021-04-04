@@ -3,7 +3,7 @@ from enum import IntEnum
 from sys import argv, stdin, stderr
 from string import whitespace
 
-# These next 2 lines of code are only for ANSI escape support on Windows cmd prompt/powershell
+# These next 2 lines of code are only for ANSI escape support on Windows cmd/powershell
 # If you do not use cmd/ps, you can comment them out or remove them
 from os import system
 
@@ -29,7 +29,9 @@ for arg in argv[1:]:
         read_result = file.read(bytes_to_read)
     except Exception as e:
         print(
-            f"Error {f'reading {file.name}' if 'file' in globals() else 'opening file'}: {e}",
+            f"Error \
+            {f'reading {file.name}' if 'file' in globals() else 'opening file'}\
+            : {e}",
             file=stderr,
         )
         continue
