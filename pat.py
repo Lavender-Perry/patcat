@@ -1,4 +1,4 @@
-#!/usr/bin/python
+#!/usr/bin/env python3
 from enum import IntEnum
 from sys import argv, stdin, stderr
 from string import whitespace
