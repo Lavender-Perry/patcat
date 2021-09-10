@@ -2,8 +2,10 @@ from setuptools import setup
 
 setup(
     name = "pat",
-    version = "2021.09.09",
+    version = "2021.09.09.1",
     description = "Outputs text with rainbow colors.",
+    long_description = open("readme.md").read(),
+    long_description_content_type = "text/markdown",
     url = "https://gitdab.com/endie2/pat",
     author = "Lavender Perry",
     author_email = "endie2@protonmail.com",
