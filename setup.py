@@ -2,9 +2,9 @@ from setuptools import setup
 
 setup(
     name = "patcat",
-    version = "2021.09.10",
+    version = "2021.09.10.1",
     description = "Outputs text with rainbow colors.",
-    long_description = open("readme.md").read(),
+    long_description = open("README").read(),
     long_description_content_type = "text/markdown",
     url = "https://gitdab.com/endie2/pat",
     author = "Lavender Perry",
