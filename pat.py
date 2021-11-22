@@ -1,16 +1,10 @@
 #!/usr/bin/env python3
 from enum import IntEnum
-from sys import stdin, stderr
-from string import whitespace
+from sys import argv, stdin, stderr
 import argparse
 import os
+import string
 
-class ColorInfo(IntEnum):
-    AMOUNT = 299 # Amount of colors to be outputted (must not be higher than PER_STAGE)
-    MAX_RGB_VALUE = 255 # Max value any r/g/b can have
-    # Do not change these next 2
-    PER_STAGE = (AMOUNT + 1) // 3
-    MIN_RGB_VALUE = MAX_RGB_VALUE - PER_STAGE
 
 # If the program is using too much memory, try decreasing this value
 # If some text is getting cut off, try increasing this value
@@ -23,19 +17,45 @@ color_print = lambda red, green, blue, string: print(
         "\x1b[38;2;%d;%d;%dm%s" % (red, green, blue, string),
         end='')
 
+class Defaults(IntEnum):
+    AMT = 300
+    MAX = 255
+
 parser = argparse.ArgumentParser(description="Output text from files with color.")
 parser.add_argument(
-        "paths",
-        type=str,
-        nargs='*',
-        help="a path to open ('-' for stdin)",
-        default=['-'])
-parser.add_argument(
         "-n", "--number",
-        help="number all output lines",
-        action="store_true")
+        action="store_true",
+        help="number all output lines")
+parser.add_argument(
+        "-m", "--max_rgb_value",
+        type=float, nargs='?', default=Defaults.MAX,
+        help="max value any r/g/b can have.\n"
+        + "constraints: 0 <= x <= 255\n"
+        + f"default: {Defaults.MAX}")
+parser.add_argument(
+        "-c", "--color_amount",
+        type=int, nargs='?', default=Defaults.AMT,
+        help="amount of colors to be outputted.\n"
+        + "constraints: x % 3 = 0, 0 <= x <= max * 3.\n"
+        + f"default: {Defaults.AMT}")
+parser.add_argument(
+        "paths",
+        nargs='*', default=['-'],
+        help="a path to open ('-' for stdin)")
+
 args = parser.parse_args()
 
+# Checking arguments are valid
+assert (
+        0 <= args.max_rgb_value <= 255 and
+        args.color_amount <= args.max_rgb_value * 3 and
+        not args.color_amount % 3), f"Invalid arguments.  Run `{argv[0]} -h` for help."
+
+class ColorInfo(IntEnum):
+    AMOUNT = args.color_amount
+    MAX_RGB_VALUE = args.max_rgb_value
+    PER_STAGE = args.color_amount / 3
+    MIN_RGB_VALUE = MAX_RGB_VALUE - PER_STAGE
 
 line = 1 if args.number else False
 
@@ -51,9 +71,9 @@ for path in args.paths:
         print(f"Error reading {path}: {e}", file=stderr)
         continue
 
-    changes = len(list(filter(lambda c: not c in whitespace, read_result))) - 1
+    changes = len(list(filter(lambda c: not c in string.whitespace, read_result))) - 1
 
-    step = 0 if changes == 0 else ColorInfo.AMOUNT / changes
+    step = 0 if changes == 0 else (ColorInfo.AMOUNT - 1) / changes
     index = 0
 
     if line and first_file:
@@ -65,7 +85,7 @@ for path in args.paths:
 
 
     for char in read_result:
-        if char in whitespace:
+        if char in string.whitespace:
             print(char, end='')
             if line and char == '\n':
                 line += 1
