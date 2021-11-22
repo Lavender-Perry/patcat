@@ -1,5 +1,12 @@
-# Recommended installation
+# Pat
+Outputs text from files with rainbow colors.
+
+## Recommended installation
 ```pip install patcat```
 
-# Usage
-It works exactly like normal cat, except without any flags
+## Usage
+```pat -h``` to see options
+
+## Inspirations/related programs
+* [lolcat](https://github.com/busyloop/lolcat)
+* [cat](https://en.wikipedia.org/wiki/Cat_(Unix))
