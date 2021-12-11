@@ -17,29 +17,17 @@ color_print = lambda red, green, blue, string: print(
         "\x1b[38;2;%d;%d;%dm%s" % (red, green, blue, string),
         end='')
 
-class Defaults(IntEnum):
-    AMT = 300
-    MAX = 255
-
 parser = argparse.ArgumentParser(description="Output text from files with color.")
-parser.add_argument(
-        "-n", "--number",
+parser.add_argument("-n", "--number",
         action="store_true",
         help="number all output lines")
-parser.add_argument(
-        "-m", "--max_rgb_value",
-        type=float, nargs='?', default=Defaults.MAX,
-        help="max value any r/g/b can have.\n"
-        + "constraints: 0 <= x <= 255\n"
-        + f"default: {Defaults.MAX}")
-parser.add_argument(
-        "-c", "--color_amount",
-        type=int, nargs='?', default=Defaults.AMT,
-        help="amount of colors to be outputted.\n"
-        + "constraints: x % 3 = 0, 0 <= x <= max * 3.\n"
-        + f"default: {Defaults.AMT}")
-parser.add_argument(
-        "paths",
+parser.add_argument("-m", "--max_rgb_value",
+        type=float, nargs='?', default=255,
+        help="max value any r/g/b can have. 0 <= argument <= 255")
+parser.add_argument("-c", "--color_amount",
+        type=int, nargs='?', default=300,
+        help="amount of colors to output. arg is divisible by 3, 0 <= arg <= max * 3.")
+parser.add_argument("paths",
         nargs='*', default=['-'],
         help="a path to open ('-' for stdin)")
 
