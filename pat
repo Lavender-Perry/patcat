@@ -14,8 +14,8 @@ first_file = True
 
 line_str = lambda line: str(line).rjust(8, ' ') + ' '
 color_print = lambda red, green, blue, string: print(
-        "\x1b[38;2;%d;%d;%dm%s" % (red, green, blue, string),
-        end='')
+    f"\x1b[38;2;{red};{green};{blue}m{string}",
+    end='')
 
 parser = argparse.ArgumentParser(description="Output text from files with color.")
 parser.add_argument("-n", "--number",
