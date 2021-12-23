@@ -2,7 +2,7 @@ from setuptools import setup
 
 setup(
     name = "patcat",
-    version = "devel",
+    version = "2021.12.23",
     description = "Outputs text with rainbow colors.",
     long_description = open("README").read(),
     long_description_content_type = "text/markdown",
