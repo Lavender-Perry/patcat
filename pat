@@ -2,7 +2,6 @@
 from sys import argv, stdin
 from string import whitespace
 import argparse
-import os
 
 # If the program is using too much memory, try decreasing this value
 # If some text is getting cut off, try increasing this value
@@ -50,10 +49,6 @@ colors_per_stage = args.color_amount // 3
 min_rgb_value = args.max_rgb_value - colors_per_stage
 line = 1 if args.number else False
 line_print_pending = False
-
-# Windows command prompt / powershell support
-if os.name == "nt":
-    os.system("")
 
 for path in args.paths:
     with stdin if path == "-" else open(path, "r") as file:
