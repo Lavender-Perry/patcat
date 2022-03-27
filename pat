@@ -8,14 +8,24 @@ import os
 # If some text is getting cut off, try increasing this value
 bytes_to_read = 1000000
 
-line_str = lambda line: str(line).rjust(6, " ") + "  "
-color_print = lambda red, green, blue, string: print(
-    f"\033[38;2;{red};{green};{blue}m{string}", end=""
-)
+color_str = lambda red, green, blue: f"\033[38;2;{red};{green};{blue}m"
 
 parser = argparse.ArgumentParser(description="Output text from files with color.")
 parser.add_argument(
-    "-n", "--number", action="store_true", help="number all output lines"
+    "-b",
+    "--number-nonblank",
+    action="store_true",
+    help="number output lines that aren't blank"
+)
+parser.add_argument(
+    "-c",
+    "--color_amount",
+    type=int, nargs="?",
+    default=300,
+    help="amount of colors to output. arg is divisible by 3, 0 <= arg <= max * 3.",
+)
+parser.add_argument(
+    "-n", "--number", action="store_true", help="number output lines, overrides -b"
 )
 parser.add_argument(
     "-m",
@@ -24,14 +34,6 @@ parser.add_argument(
     nargs="?",
     default=255,
     help="max value any r/g/b can have. 0 <= argument <= 255",
-)
-parser.add_argument(
-    "-c",
-    "--color_amount",
-    type=int,
-    nargs="?",
-    default=300,
-    help="amount of colors to output. arg is divisible by 3, 0 <= arg <= max * 3.",
 )
 parser.add_argument(
     "paths", nargs="*", default=["-"], help="a path to open ('-' for stdin)"
@@ -48,13 +50,15 @@ assert (
 
 colors_per_stage = args.color_amount // 3
 min_rgb_value = args.max_rgb_value - colors_per_stage
-line = 1 if args.number else False
-line_print_pending = False
+line = 1
+line_txt = ""
 
 # Windows command prompt / powershell support
 if os.name == "nt":
     os.system("")
 
+if args.number or args.number_nonblank:
+    print(color_str(args.max_rgb_value, min_rgb_value, min_rgb_value), end="")
 for path in args.paths:
     with stdin if path == "-" else open(path, "r") as file:
         read_result = file.read(bytes_to_read)
@@ -62,37 +66,35 @@ for path in args.paths:
         step = 0 if changes == 0 else (args.color_amount - 1) / changes
         index = 0
 
-        if line:
-            color_print(
-                args.max_rgb_value, min_rgb_value, min_rgb_value, line_str(line)
-            )
-
         for char in read_result:
-            if line_print_pending:
-                print(line_str(line), end="")
-                line_print_pending = False
-
-            if char in whitespace:
-                print(char, end="")
-                if line and char == "\n":
+            if char == "\n":
+                number_line = args.number
+                if not number_line and args.number_nonblank:
+                    for char in line_txt:
+                        if not char in whitespace:
+                            number_line = True
+                            break
+                if number_line:
+                    line_txt = str(line).rjust(6, " ") + "  " + line_txt
                     line += 1
-                    line_print_pending = True
+                print(line_txt)
+                line_txt = ""
                 continue
+            if not char in whitespace:
+                color_value = round(index)
+                value_modifier = color_value % colors_per_stage
+                rgb_values = [
+                    min_rgb_value + value_modifier,
+                    args.max_rgb_value - value_modifier,
+                    min_rgb_value,
+                ]
+                [red, green, blue] = [
+                    [rgb_values[1], rgb_values[0], rgb_values[2]],
+                    rgb_values[::-1],
+                    [rgb_values[0], rgb_values[2], rgb_values[1]],
+                ][color_value // colors_per_stage]
 
-            color_value = round(index)
-            value_modifier = color_value % colors_per_stage
-            rgb_values = [
-                min_rgb_value + value_modifier,
-                args.max_rgb_value - value_modifier,
-                min_rgb_value,
-            ]
-            [red, green, blue] = [
-                [rgb_values[1], rgb_values[0], rgb_values[2]],
-                rgb_values[::-1],
-                [rgb_values[0], rgb_values[2], rgb_values[1]],
-            ][color_value // colors_per_stage]
-
-            color_print(red, green, blue, char)
-            index += step
-        line_print_pending = False
+                line_txt += color_str(red, green, blue)
+                index += step
+            line_txt += char
 print("\033[0m", end="")
