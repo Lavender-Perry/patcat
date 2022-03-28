@@ -1,4 +1,4 @@
-# Pat
+# patcat
 
 Outputs text from files with rainbow colors.
 
@@ -8,7 +8,7 @@ Outputs text from files with rainbow colors.
 
 ## Usage
 
-`pat -h` to see options
+`patcat -h` to see options
 
 ## Inspirations/related programs
 

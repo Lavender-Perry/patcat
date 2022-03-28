@@ -6,10 +6,10 @@ setup(
     description="Outputs text with rainbow colors.",
     long_description=open("README").read(),
     long_description_content_type="text/markdown",
-    url="https://gitdab.com/endie2/pat",
+    url="https://gitdab.com/elle/patcat",
     author="Lavender Perry",
     author_email="endie2@protonmail.com",
-    scripts=["pat"],
+    scripts=["patcat"],
     classifiers=[
         "Development Status :: 5 - Production/Stable",
         "Environment :: Console",
