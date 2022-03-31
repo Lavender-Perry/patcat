@@ -25,6 +25,9 @@ parser.add_argument(
     help="amount of colors to output. arg is divisible by 3, 0 <= arg <= max * 3.",
 )
 parser.add_argument(
+    "-e", "--show-ends", action="store_true", help="add '$' to end of lines"
+)
+parser.add_argument(
     "-n", "--number", action="store_true", help="number output lines, overrides -b"
 )
 parser.add_argument(
@@ -68,6 +71,9 @@ for path in args.paths:
 
         for char in read_result:
             if char == "\n":
+                if args.show_ends:
+                    line_txt += "$"
+
                 number_line = args.number
                 if not number_line and args.number_nonblank:
                     for char in line_txt:
@@ -77,6 +83,7 @@ for path in args.paths:
                 if number_line:
                     line_txt = str(line).rjust(6, " ") + "  " + line_txt
                     line += 1
+                    
                 print(line_txt)
                 line_txt = ""
                 continue
