@@ -8,6 +8,21 @@ import os
 # If some text is getting cut off, try increasing this value
 bytes_to_read = 1000000
 
+def line_fmt_print(text, num, args):
+    if args.show_ends:
+        text += "$"
+
+    number_line = args.number
+    if not number_line and args.number_nonblank:
+        for char in text:
+            if not char in whitespace:
+                number_line = True
+                break
+    if number_line:
+        text = str(num).rjust(6, " ") + "  " + text
+
+    print(text)
+
 color_str = lambda red, green, blue: f"\033[38;2;{red};{green};{blue}m"
 
 parser = argparse.ArgumentParser(description="Output text from files with color.")
@@ -71,20 +86,8 @@ for path in args.paths:
 
         for char in read_result:
             if char == "\n":
-                if args.show_ends:
-                    line_txt += "$"
-
-                number_line = args.number
-                if not number_line and args.number_nonblank:
-                    for char in line_txt:
-                        if not char in whitespace:
-                            number_line = True
-                            break
-                if number_line:
-                    line_txt = str(line).rjust(6, " ") + "  " + line_txt
-                    line += 1
-                    
-                print(line_txt)
+                line_fmt_print(line_txt, line, args)
+                line += 1
                 line_txt = ""
                 continue
             if not char in whitespace:
@@ -104,4 +107,6 @@ for path in args.paths:
                 line_txt += color_str(red, green, blue)
                 index += step
             line_txt += char
+if line_txt != "":
+    line_fmt_print(line_txt, line, args)
 print("\033[0m", end="")
